@@ -1,6 +1,6 @@
-package main
+//package main
 
-func main() {
+/*func main() {
 
 	port := ":20009"
 	protocol := "udp"
@@ -13,3 +13,4 @@ func main() {
 
 	<-done
 }
+*/

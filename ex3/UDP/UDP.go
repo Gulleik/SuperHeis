@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-/*
-import (
-	"fmt"
-	"net"
-	"time"
-)
-
 func main() {
 
 	port := ":20009"
@@ -26,7 +19,7 @@ func main() {
 
 	<-done
 }
-*/
+
 func send(serverIP string, protocol string) {
 
 	Connection, err := net.Dial("udp", serverIP)
@@ -52,11 +45,5 @@ func listen(port string, protocol string) {
 		n, err := udpConn.Read(buffer)
 		checkError(err)
 		fmt.Println(string(buffer[0:n]))
-	}
-}
-
-func checkError(err error) {
-	if err != nil {
-		fmt.Println("Error: ", err)
 	}
 }
