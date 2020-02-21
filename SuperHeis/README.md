@@ -1,7 +1,7 @@
 ### Legge til i PATH:
 - Gå til Home og trykk ctrl+H for å vise hidden files
-- Åpne .bashrc og legg til export PATH=$PATH:/path/to/your/file. Lagre.
-- Skriv "source ~/.bashrc" for å oppdatere PATH
+- Åpne .bashrc og legg til export PATH=$PATH:/path/to/your/file. Lagre.	For ElevatorServer: home/student/.cargo/bin
+- Skriv "source ~/.bashrc" for å oppdatere PATH. 
 - Good to go
 
 
