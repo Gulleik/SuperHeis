@@ -11,27 +11,55 @@ import (
 	"time"
 )
 
+
+
 const numFloors = 4
 const numButtons = 3
 var id string
 
+/*State enum*/
+type State int
+const (
+	Idle  = 0
+	Exec  = 1
+	Lost  = 2
+)
 
-/*Message to be sendt over the network*/
-type Msg struct {
-	Message string
-	Iter    int
-}
-
-/*Broadcast and recieve channel*/
-var RcvChannel chan Msg
-var BcastChannel chan Msg
-
+/*OrderStruct*/
 type Order struct {
 	Floor int
 	ButtonType int
 	Pending int
 	// Timer?
 }
+
+/*Elevstruct for keeping info about ther elevs*/
+type Elev struct {
+	Id string 
+	Floor int
+	Lastseen time
+	state int
+}
+
+
+
+/*Log to be sendt over the network*/
+type Log struct {
+	Orders []Order
+	Elevs []Elev
+	Message string
+	Iter    int
+	version time
+}
+
+/*Declaration of local log*/
+var log Log;
+
+/*Broadcast and recieve channel*/
+var RcvChannel chan Msg
+var BcastChannel chan Msg
+
+
 
 func NewOrder(floor int, buttonType int, pending int) Order{
 	order := Order{Floor: floor, ButtonType: buttonType, Pending: 0}
@@ -75,7 +103,7 @@ func SetOrder(queue *[numFloors][numButtons]Order, order Order){
  * @brief puts message on bcastChannel
  * @param Message; message to be transmitted
 */
-func UpdateLogFromLocal(Msg Message){
+func UpdateLogFromLocal(Log Message){
 		for {
 			msg.Iter++
 			bcastChannel <- Message
@@ -100,8 +128,8 @@ func UpdateLogFromNetwork(){
  * @param port; port to listen and read on
 */
 func InitNetwork(int port){
-	RcvChannel := make(chan Msg)
-	bcastChannel := make(chan Msg)
+	RcvChannel := make(chan Log)
+	bcastChannel := make(chan Log)
 	go bcast.Receiver(port, RcvChannel)
 	go bcast.Transmitter(port, bcastChannel)
 }
