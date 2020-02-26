@@ -1,7 +1,8 @@
 package logmanagement
 
-
-//import "fmt"
+import (
+	"time"
+)
 
 import (
 	"../network"
@@ -27,75 +28,76 @@ const (
 
 /*OrderStruct*/
 type Order struct {
-	Floor int
-	ButtonType int
-	Pending int
+	Floor      int //Remove
+	ButtonType int //Remove
+	Active     int
 	// Timer?
 }
 
-/*Elevstruct for keeping info about ther elevs*/
-type Elev struct {
-	Id string 
-	Floor int
-	Lastseen time
-	state int
-}
-
-
-
-/*Log to be sendt over the network*/
-type Log struct {
-	Orders []Order
-	Elevs []Elev
-	Message string
-	Iter    int
-	version time
-}
-
-/*Declaration of local log*/
-var log Log;
-
-/*Broadcast and recieve channel*/
-var RcvChannel chan Msg
-var BcastChannel chan Msg
-
-
-
-func NewOrder(floor int, buttonType int, pending int) Order{
-	order := Order{Floor: floor, ButtonType: buttonType, Pending: 0}
+func NewOrder(floor int, buttonType int, active int) Order {
+	order := Order{Floor: floor, ButtonType: buttonType, Active: active}
 	return order
 }
 
-var PendingOrdersQueue = &[numFloors][numButtons]Order{}
-var ActiveOrdersQueue = &[numFloors][numButtons]Order{}
+var OrderQueue = &[numFloors][numButtons]Order{}
 
-func InitializeQueue(queue *[numFloors][numButtons]Order){
+func InitializeQueue(queue *[numFloors][numButtons]Order) {
 	for i := 0; i < numFloors; i++ {
 		for j := 0; j < numButtons; j++ {
 			//queue[i][j] = nil
-			queue[i][j].Floor = -1
-			queue[i][j].ButtonType = -1
-			queue[i][j].Pending = 0
+			queue[i][j].Floor = i
+			queue[i][j].ButtonType = j
+			queue[i][j].Active = -1
 		}
 	}
 }
 
-func CheckForOrders(queue *[numFloors][numButtons]Order, receiver chan<- Order){ // Velger den første i lista, ikke den eldste ordren
-	for {
+/*func CheckForOrders(queue *[numFloors][numButtons]Order, receiver chan<- Order) { // Velger den første i lista, ikke den eldste ordren
+	for { // Legg i orderHandler?
 		time.Sleep(20 * time.Millisecond)
-		for i := 0; i < numFloors; i++ {	
+		for i := 0; i < numFloors; i++ {
 			for j := 0; j < numButtons; j++ {
-				if queue[i][j].Floor != -1{
+				if queue[i][j].Active == 0 {
+					fmt.Printf("%+v\n", queue[i][j])
 					receiver <- queue[i][j]
 				}
 			}
 		}
 	}
-	
+}*/
+
+func CheckForOrder() Order { // Velger den første i lista, ikke den eldste ordren
+	time.Sleep(20 * time.Millisecond)
+	for i := 0; i < numFloors; i++ {
+		for j := 0; j < numButtons; j++ {
+			if OrderQueue[i][j].Active == 0 {
+				return OrderQueue[i][j]
+			}
+		}
+	}
+	order := Order{Floor: -1, ButtonType: -1, Active: -1}
+	return order
 }
 
-func SetOrder(queue *[numFloors][numButtons]Order, order Order){
-	queue[order.Floor][order.ButtonType] = order
+// UpdateOrderQueue updates the order queue
+func UpdateOrderQueue(floor int, button int, active int) {
+	OrderQueue[floor][button].Active = active
+}
+
+// GetActiveOrder returns the first found active order
+func GetActiveOrder() Order {
+	for i := 0; i < numFloors; i++ {
+		for j := 0; j < numButtons; j++ {
+			if OrderQueue[i][j].Active == 1 {
+				return OrderQueue[i][j]
+			}
+		}
+	}
+	return Order{Floor: -1, ButtonType: -1, Active: -1}
+}
+
+func GetOrder(floor int, buttonType int) Order {
+	return OrderQueue[floor][buttonType]
 }
 
 

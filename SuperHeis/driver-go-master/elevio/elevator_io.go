@@ -1,11 +1,11 @@
 package elevio
 
-import "time"
-import "sync"
-import "net"
-import "fmt"
-
-
+import (
+	"fmt"
+	"net"
+	"sync"
+	"time"
+)
 
 const _pollRate = 20 * time.Millisecond
 
@@ -49,12 +49,6 @@ func Init(addr string, numFloors int) {
 		panic(err.Error())
 	}
 	_initialized = true
-}
-
-func fixButtonLamp(button ButtonType, floor int, value bool) {
-	_mtx.Lock()
-	defer _mtx.Unlock()
-	_conn.Write([]byte{2, byte(button), byte(floor), toByte(value)})
 }
 
 func SetMotorDirection(dir MotorDirection) {
@@ -161,6 +155,19 @@ func getFloor() int {
 	}
 }
 
+func GetFloor() int {
+	_mtx.Lock()
+	defer _mtx.Unlock()
+	_conn.Write([]byte{7, 0, 0, 0})
+	var buf [4]byte
+	_conn.Read(buf[:])
+	if buf[1] != 0 {
+		return int(buf[2])
+	} else {
+		return -1
+	}
+}
+
 func getStop() bool {
 	_mtx.Lock()
 	defer _mtx.Unlock()
@@ -170,10 +177,8 @@ func getStop() bool {
 	return toBool(buf[1])
 }
 
-func getObstruction() bool {
-	_mtx.Lock()
-	defer _mtx.Unlock()
-	_conn.Write([]byte{9, 0, 0, 0})
+func getObstruc	network "../Network"
+([]byte{9, 0, 0, 0})
 	var buf [4]byte
 	_conn.Read(buf[:])
 	return toBool(buf[1])
